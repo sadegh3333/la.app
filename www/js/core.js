@@ -23,7 +23,7 @@ var LDPA = {};
 LDPA.core = function(){
 
   // Set Version
-  LDPA.version = '3.2.120';
+  LDPA.version = '3.2.340';
   // Set Channel Release
   LDPA.ChannelVersion = 'Pilot';
 
@@ -39,6 +39,14 @@ LDPA.core = function(){
   // LDPA.login_stat();
 
   var login_status =  localStorage.getItem('logged_in');
+
+
+
+  // Make RowNo if not Exist
+  if (localStorage.getItem('RowNo') === null) {
+    rownoDef = 0;
+    localStorage.setItem('RowNo',rownoDef);
+  };
 
 
 

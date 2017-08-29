@@ -143,6 +143,7 @@ DB.show_do_list = function(){
   }
 
 
+
   var jobactivityid_list = [];
 
   // Loop for show list
@@ -159,7 +160,7 @@ DB.show_do_list = function(){
     }
 
     $('.todo_list').after(
-      '<div class="'+job_done_class+' item_todo ActivityID_'+jsdo_doing[i].ActivityID+'" id="task_'+jsdo_doing[i].JobactivityID+'"  Timelimitstoppedbysteps="'+jsdo_doing[i].Timelimitstoppedbysteps+'" TimeLimit="'+jsdo_doing[i].TimeLimit+'" ActivityID="'+jsdo_doing[i].ActivityID+'" HasAdditionalInput="'+jsdo_doing[i].HasAdditionalInput+'">' +
+      '<div class="'+job_done_class+' item_todo ActivityID_'+jsdo_doing[i].ActivityID+'" id="task_'+jsdo_doing[i].JobactivityID+'" RowNo="'+jsdo_doing[i].RowNo+'"  Timelimitstoppedbysteps="'+jsdo_doing[i].Timelimitstoppedbysteps+'" TimeLimit="'+jsdo_doing[i].TimeLimit+'" ActivityID="'+jsdo_doing[i].ActivityID+'" HasAdditionalInput="'+jsdo_doing[i].HasAdditionalInput+'">' +
       '<span>'+
       '<div class="id-schedule"><div><i class="fa fa-key" aria-hidden="true"></i>' +jsdo_doing[i].JobactivityID +' - <button class="edit-btn edit-btn-'+jsdo_doing[i].JobactivityID+'" ng-click="btnedit('+jsdo_doing[i].JobactivityID+')">edit</button></div><div><strong>'+
       jsdo_doing[i].ActivityName +'</strong></div></div>'+
@@ -346,7 +347,15 @@ DB.btndone = function(x){
     // clearInterval(DB.timer_running);
     // DB.timer_down(Timelimit,x);
 
+
+
+    // Timer is Coming...
     if(Timelimit != 0){
+
+      // console.log($('#task_'+x+'').attr('rowno'));
+
+      localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+
       DB.countdown(Timelimit,x);
     }
 
@@ -372,7 +381,7 @@ DB.btndone = function(x){
 
 
     // sync with server if server is available
-    DB.check_sync_with_server();
+    // DB.check_sync_with_server();
     // refresh page
     // location.reload();
   } else { return; } // end question
@@ -500,7 +509,7 @@ DB.countdown_timer = function(){
       },1500);
     }
   }
-  DB.check_sync_with_server();
+  // DB.check_sync_with_server();
 
 
   DB.sendAuto = function(){
