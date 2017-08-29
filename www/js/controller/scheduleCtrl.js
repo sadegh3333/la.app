@@ -142,6 +142,11 @@ ldpaApp.controller('scheduleCtrl' , function($scope){
   $scope.list_schedule();
 
 
+  // Check Every 60 second , New Data is Available
+  setInterval(function(){
+    DB.get_job_schedule_from_server();
+  },10000);
+
   // console.log(DB);
 
 
