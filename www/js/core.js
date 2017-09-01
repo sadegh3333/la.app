@@ -23,7 +23,7 @@ var LDPA = {};
 LDPA.core = function(){
 
   // Set Version
-  LDPA.version = '3.2.340';
+  LDPA.version = '3.3.19';
   // Set Channel Release
   LDPA.ChannelVersion = 'Pilot';
 
@@ -48,6 +48,13 @@ LDPA.core = function(){
     localStorage.setItem('RowNo',rownoDef);
   };
 
+  // Check For CheckTImer is available
+  if (localStorage.getItem('checkTimer') === null) {
+    localStorage.setItem('checkTimer', 0);
+  }
+
+  // Created Global Variable for interval_timer
+  var interval_timer;
 
 
   return 'This is core of ldpa App.';

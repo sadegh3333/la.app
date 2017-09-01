@@ -1,6 +1,32 @@
 var DB = {};
-DB.timer_running;
+// DB.timer_running;
 
+
+/*
+*   Function get Time now with format like 2017-02-27 02:39:47
+*
+*   @since 1.3.0
+*/
+DB.getTimewithFormat = function(){
+
+  var today = new Date();
+  var yyyy = today.getFullYear();
+  var mm = today.getMonth()+1;
+  var dd = today.getDate();
+  var h = today.getHours();
+  var m = today.getMinutes();
+  var s = today.getSeconds();
+
+  if(dd<10){ dd='0'+dd;}
+  if(mm<10){ mm='0'+mm;}
+  if(h<10){h='0'+h;}
+  if(m<10){m='0'+m;}
+  if(s<10){s='0'+s;}
+
+  timeanddate = yyyy+'-'+mm+'-'+dd+' '+h+':'+m+':'+s;
+
+  return timeanddate;
+}
 
 /*
 *   Get All JobActivity And Store into localstorage
@@ -146,6 +172,7 @@ DB.show_do_list = function(){
 
   var jobactivityid_list = [];
 
+  // console.log(count);
   // Loop for show list
   for (var i = count -1; i >= 0; i--) {
 
@@ -232,7 +259,7 @@ DB.btndone = function(x){
   if (update == true) {
 
 
-    console.log('hello edited button');
+    // console.log('hello edited button');
     $('.edit-btn-'+x+'').fadeIn('100');
     // Reset the time
     // msLeft = 0;
@@ -349,19 +376,10 @@ DB.btndone = function(x){
 
 
 
-    // Timer is Coming...
-    if(Timelimit != 0){
-
-      // console.log($('#task_'+x+'').attr('rowno'));
-
-      localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
-
-      DB.countdown(Timelimit,x);
-    }
 
 
 
-    DB.notification();
+    // DB.notification();
     // Added a notify
     var getTime = DB.getTimewithFormat();
     getdata = JSON.parse(localStorage.getItem('notification'));
@@ -378,183 +396,302 @@ DB.btndone = function(x){
     );
     localStorage.setItem('notification',JSON.stringify(getdata));
 
+    var end_time = (Date.now() + (Timelimit * 60 * 1000));
 
+
+    var the_last_stand = $('#task_'+x+'').siblings().length;
+    console.log(the_last_stand);
+
+    console.log('1');
+
+    if(the_last_stand == $('#task_'+x+'').attr('RowNo') ){
+      localStorage.setItem('checkTimer',0);
+      localStorage.setItem('timeover_running','OFF');
+    }
+    if($('#task_'+x+'').attr('RowNo') == 1  ) {
+      localStorage.setItem('checkTimer',0);
+    }
+
+    // Timer is Coming...
+    if(Timelimit != 0){
+      var end_time = (Date.now() + (Timelimit * 60 * 1000));
+
+      console.log('time limit is not zero');
+      if(localStorage.getItem('checkTimer') == 0 ){
+
+        var timer_data = {
+          'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
+          'schedule_running':x,
+          'rowno': $('#task_'+x+'').attr('RowNo'),
+          'time_submited': end_time,
+        };
+
+        localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+
+        localStorage.setItem('timeover_running','ON');
+        localStorage.setItem('checkTimer',JSON.stringify(timer_data));
+
+
+      }else {
+
+        var which_next = JSON.parse(localStorage.getItem('checkTimer')).timelimitstoppedbysteps;
+        for (var i = 0; i < which_next.length; i++) {
+          console.log(which_next[i]);
+          if($('#task_'+x+'').attr('rowno') == which_next[i]){
+
+            // clearInterval(interval_timer);
+            localStorage.setItem('timeover_running','OFF');
+            localStorage.setItem('checkTimer',0);
+
+
+            // localStorage.setItem('end_time',end_time);
+            var timer_data = {
+              'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
+              'schedule_running':x,
+              'rowno': $('#task_'+x+'').attr('RowNo'),
+              'time_submited': end_time,
+            };
+
+            localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+
+            localStorage.setItem('checkTimer',JSON.stringify(timer_data));
+            console.log('timeover made');
+            localStorage.setItem('timeover_running','ON');
+
+          }
+          else{
+            console.log('there is nothing same rowno');
+          }
+        }
+      }
+      // DB.countdown(Timelimit,x);
+    }
+
+    // console.log(JSON.parse(localStorage.getItem('checkTimer')));
 
     // sync with server if server is available
-    // DB.check_sync_with_server();
-    // refresh page
-    // location.reload();
+
   } else { return; } // end question
 }
 
 
 
+DB.checkTimer = function(){
 
-DB.countdown = function(timelimit,schedule_running){
+  // console.log('No Timer Running');
+  if(JSON.parse(localStorage.getItem('checkTimer')).time_submited <= Date.now() ){
 
-  // set Time limit
-  var end_time = (Date.now() + (timelimit * 60 * 1000));
-  localStorage.setItem('end_time',end_time);
-  localStorage.setItem('countdown_ON','ON');
+    // Set A Notification for time is OVER
+    // Added a notify
+    var getTime = DB.getTimewithFormat();
+    getdata = JSON.parse(localStorage.getItem('notification'));
+    var get_position = localStorage.getItem('location');
 
+    getdata.items.push(
+      {
+        event: JSON.parse(localStorage.getItem('checkTimer')).schedule_running,
+        time:getTime,
+        type:'timeover',
+        jobActivity: JSON.parse(localStorage.getItem('checkTimer')).schedule_running,
+        position: get_position,
+      }
+    );
+    localStorage.setItem('notification',JSON.stringify(getdata));
 
-  DB.countdown_timer();
+    console.log('notify for time over is created');
+    localStorage.setItem('timeover_running','OFF');
+  }else{
+    console.log('there is nothing notificaiotn created for time over');
+  }
+
 
 }
 
-/**
-*   Count down Timer ( New Generation )
-*   we need a countdown for when time is period
-*   inserted to timer_out and send to server manager
+
+// Check the Timer nedd to be ON
+setInterval(function(){
+  if(localStorage.getItem('timeover_running') == 'ON'){
+    DB.checkTimer();
+  }
+},5000);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+*   Check Sync With Server
+*   @param jsdo (  )
 *
-*   @since 1.5.77
-*
+*   @Since 0.9.42
 */
-DB.countdown_timer = function(){
+DB.check_sync_with_server = function(){
 
-  // Check elapsed time if done close interval
-  if(localStorage.getItem('end_time') <= Date.now() && localStorage.getItem('countdown_ON') == 'OFF' ){
-    localStorage.setItem('countdown_ON','OFF');
-    clearInterval(timeinterval_countdown);
-  }else {
-    var timeinterval_countdown = setInterval(function(){
-      var start_time = Date.now();
-      var elapsed = localStorage.getItem('end_time') - start_time;
-      localStorage.setItem('countdown_ON','ON');
-      // console.log(elapsed);
-
-      // Check elapsed time if done close interval
-      if(localStorage.getItem('end_time') === null){
-        // console.log('Timer is Running');
-      }else{
-        // console.log('No Timer Running');
-        if(localStorage.getItem('end_time') <= Date.now() ){
-
-          // Set A Notification for time is OVER
-          // DB.notification();
-          // Added a notify
-          var getTime = DB.getTimewithFormat();
-          getdata = JSON.parse(localStorage.getItem('notification'));
-          var get_position = localStorage.getItem('location');
-
-          getdata.items.push(
-            {
-              event:localStorage.getItem('schedule_running'),
-              time:getTime,
-              type:'timeover',
-              jobActivity: localStorage.getItem('schedule_running'),
-              position: get_position,
-            }
-          );
-          localStorage.setItem('notification',JSON.stringify(getdata));
-
-          // sync with server if server is available
-          // DB.check_sync_with_server();
+  // get data job_done
+  var data_done = JSON.parse(localStorage.getItem('jsdo_done'));
+  var count_sync = data_done.items.length;
+  // condition for how many job_done
+  $('.sync_with_server').show('slow');
+}
+// DB.check_sync_with_server();
 
 
-          localStorage.setItem('countdown_ON','OFF');
-          clearInterval(timeinterval_countdown);
-        }
-      }},1000);
-    }
-  }
-
-  DB.countdown_timer();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  /*
-  *   Check Sync With Server
-  *   @param jsdo (  )
-  *
-  *   @Since 0.9.42
-  */
-  DB.check_sync_with_server = function(){
-
-    // get data job_done
-    var data_done = JSON.parse(localStorage.getItem('jsdo_done'));
-    var count_sync = data_done.items.length;
-    // condition for how many job_done
-    if (count_sync > 1) {
-      setTimeout(function(){
-        $('#sync_with_server').html(count_sync-1 +' item(s) recorded, Sync With Server.');
-        $('.sync_with_server').show('slow');
-        DB.sync_with_server();
-        // DB.notification();
-      },1500);
-    }
-  }
-  // DB.check_sync_with_server();
-
-
-  DB.sendAuto = function(){
-    DB.check_sync_with_server();
-  }
-  setTimeout(function(){
-    setInterval(function(){
-      DB.sendAuto();
-    },10000);
+DB.sendAuto = function(){
+  DB.check_sync_with_server();
+}
+setTimeout(function(){
+  setInterval(function(){
+    DB.sendAuto();
   },10000);
+},10000);
 
 
-  /*
-  *   Sync With Server
-  *   @param jsdo (  )
-  *
-  *   @Since 0.9.42
-  */
-  DB.sync_with_server = function(){
+/*
+*   Sync With Server
+*   @param jsdo (  )
+*
+*   @Since 0.9.42
+*/
+DB.sync_with_server = function(){
 
-    var jsdo_done_sync = JSON.parse(localStorage.getItem('jsdo_done'));
+  var jsdo_done_sync = JSON.parse(localStorage.getItem('jsdo_done'));
 
-    var count_jsdo = jsdo_done_sync['items'].length;
+  var count_jsdo = jsdo_done_sync['items'].length;
 
 
 
-    // Change structure for server
-    var newarray = [];
-    for(i = 1; i < count_jsdo ; i++){
-      if ( jsdo_done_sync['items'][i]['HasAdditionalInput'] != null ) {
-        newarray.push(jsdo_done_sync['items'][i]);
-      }else{
-        jsdo_done_sync['items'][i]['HasAdditionalInput'] = '';
-        newarray.push(jsdo_done_sync['items'][i]);
-      }
+  // Change structure for server
+  var newarray = [];
+  for(i = 1; i < count_jsdo ; i++){
+    if ( jsdo_done_sync['items'][i]['HasAdditionalInput'] != null ) {
+      newarray.push(jsdo_done_sync['items'][i]);
+    }else{
+      jsdo_done_sync['items'][i]['HasAdditionalInput'] = '';
+      newarray.push(jsdo_done_sync['items'][i]);
     }
+  }
 
-    // ready for sending wiht username
-    var  which_user = localStorage.getItem('username');
-    $('.show-loading').show();
+  // ready for sending wiht username
+  var  which_user = localStorage.getItem('username');
+  $('.show-loading').show();
+  $.ajax({
+    url: LDPA.RootServer+"/api/ldpa/sync_with_server/",
+
+    data: {
+      jsdo_done_readyforsync: newarray,
+      which_user: which_user,
+    },
+
+    type: "POST",
+
+    dataType: "json",
+  })
+
+  .done(function (json) {
+
+    console.log(json);
+    // $('.show-loading').hide();
+    // $('#sync_with_server').hide('slow');
+    // $('message-noty').show('slow');
+    localStorage.setItem('jsdo_done_readyforsync', '');
+    jsdo_done_default = {items: [
+      {jobActivity:-1,datetime:0,HasAdditionalInput:0}
+    ]};
+    localStorage.setItem('jsdo_done',JSON.stringify(jsdo_done_default));
+
+    // update all jobschedule ( jsdo_X )
+    // DB.get_schedule_task();
+    // $('message-noty').html('JobSchedule list updated !');
+    // $('message-noty').show('slow');
+    // setTimeout(function(){
+    //   $('message-noty').hide('slow');
+    // },2000);
+    //
+    // // show a message sync is completed
+    // setTimeout(function(){
+    //   $('message-noty').html('Sync Completed !');
+    //   $('message-noty').show('slow');
+    // },2500);
+    //
+    // setTimeout(function(){
+    //   $('message-noty').hide('slow');
+    // },5000);
+
+
+  })
+
+  .fail(function (xhr, status, errorThrown) {
+
+    console.log("Error: " + errorThrown);
+    console.log("Status: " + status);
+    console.dir(xhr);
+  });
+}
+
+
+setInterval(function(){
+  // $('#sync_with_server').click(function(){
+    // console.log('yeah clicked');
+    DB.sync_with_server();
+  // });
+},7000);
+
+
+
+
+
+/*
+*   Function Send notification to server when its available
+*
+*   @since 1.3.0
+*/
+DB.sendNotification = function(){
+
+
+  var get_data_notification = JSON.parse(localStorage.getItem('notification'));
+
+  var get_data_notification_count = get_data_notification.items.length;
+  // console.log(get_data_notification_count);
+  // console.log(get_data_notification);
+  which_user = localStorage.getItem('id')
+
+
+  // Change structure for server
+  var newarray0 = [];
+  for(i = 0; i < get_data_notification_count ; i++){
+    newarray0.push(get_data_notification['items'][i]);
+  }
+
+  // console.log(newarray0);
+  if(get_data_notification_count >= 1){
+
+
     $.ajax({
-      url: LDPA.RootServer+"/api/ldpa/sync_with_server/",
+      url: LDPA.RootServer+"/api/ldpa/send_notification/",
 
       data: {
-        jsdo_done_readyforsync: newarray,
+        jsdo_warning: newarray0,
         which_user: which_user,
       },
 
@@ -564,227 +701,111 @@ DB.countdown_timer = function(){
     })
 
     .done(function (json) {
-
-      console.log(json);
-      $('.show-loading').hide();
-      $('#sync_with_server').hide('slow');
-      $('message-noty').show('slow');
-      localStorage.setItem('jsdo_done_readyforsync', '');
-      jsdo_done_default = {items: [
-        {jobActivity:-1,datetime:0,HasAdditionalInput:0}
-      ]};
-      localStorage.setItem('jsdo_done',JSON.stringify(jsdo_done_default));
-
-      // update all jobschedule ( jsdo_X )
-      // DB.get_schedule_task();
-      $('message-noty').html('JobSchedule list updated !');
-      $('message-noty').show('slow');
-      setTimeout(function(){
-        $('message-noty').hide('slow');
-      },2000);
-
-      // show a message sync is completed
-      setTimeout(function(){
-        $('message-noty').html('Sync Completed !');
-        $('message-noty').show('slow');
-      },2500);
-
-      setTimeout(function(){
-        $('message-noty').hide('slow');
-      },5000);
-
+      // console.log(json);
+      localStorage.removeItem('notification');
+      // localStorage.setItem('notification','');
 
     })
-
     .fail(function (xhr, status, errorThrown) {
 
       console.log("Error: " + errorThrown);
       console.log("Status: " + status);
       console.dir(xhr);
     });
-  }
-
-
-  setTimeout(function(){
-    $('#sync_with_server').click(function(){
-      console.log('yeah clicked');
-      DB.sync_with_server();
-    });
-  },2000);
-
-
-
-
-
-  /*
-  *   Function Send notification to server when its available
-  *
-  *   @since 1.3.0
-  */
-  DB.sendNotification = function(){
-
-
-    var get_data_notification = JSON.parse(localStorage.getItem('notification'));
-
-    var get_data_notification_count = get_data_notification.items.length;
-    // console.log(get_data_notification_count);
-    // console.log(get_data_notification);
-    which_user = localStorage.getItem('id')
-
-
-    // Change structure for server
-    var newarray0 = [];
-    for(i = 0; i < get_data_notification_count ; i++){
-      newarray0.push(get_data_notification['items'][i]);
-    }
-
-    // console.log(newarray0);
-    if(get_data_notification_count >= 1){
-
-
-      $.ajax({
-        url: LDPA.RootServer+"/api/ldpa/send_notification/",
-
-        data: {
-          jsdo_warning: newarray0,
-          which_user: which_user,
-        },
-
-        type: "POST",
-
-        dataType: "json",
-      })
-
-      .done(function (json) {
-        // console.log(json);
-        localStorage.removeItem('notification');
-        // localStorage.setItem('notification','');
-
-      })
-      .fail(function (xhr, status, errorThrown) {
-
-        console.log("Error: " + errorThrown);
-        console.log("Status: " + status);
-        console.dir(xhr);
-      });
-
-    }
 
   }
 
-  setInterval(function(){
-    DB.notification();
-    console.log('Notification is Checked');
-  },10500);
+}
 
-  /*
-  *   Function get Time now with format like 2017-02-27 02:39:47
-  *
-  *   @since 1.3.0
-  */
-  DB.getTimewithFormat = function(){
+setInterval(function(){
+  DB.notification();
+  console.log('Notification is Checked');
+},10500);
 
-    var today = new Date();
-    var yyyy = today.getFullYear();
-    var mm = today.getMonth()+1;
-    var dd = today.getDate();
-    var h = today.getHours();
-    var m = today.getMinutes();
-    var s = today.getSeconds();
 
-    if(dd<10){ dd='0'+dd;}
-    if(mm<10){ mm='0'+mm;}
-    if(h<10){h='0'+h;}
-    if(m<10){m='0'+m;}
-    if(s<10){s='0'+s;}
 
-    timeanddate = yyyy+'-'+mm+'-'+dd+' '+h+':'+m+':'+s;
+/*
+*   Function append with added element to page work with ID
+*
+*   @since 1.3.0
+*/
+DB.notification = function(){
 
-    return timeanddate;
+  var getTime = DB.getTimewithFormat();
+
+  var notify = {'event':'','time':'','type':'','jobActivity':'','position':''};
+  notify = {items: [
+    // {event:-1,time:0}
+  ]};
+
+  if(localStorage.getItem('notification') === null ){
+    localStorage.setItem('notification',JSON.stringify(notify));
   }
 
-  /*
-  *   Function append with added element to page work with ID
-  *
-  *   @since 1.3.0
-  */
-  DB.notification = function(){
-
-    var getTime = DB.getTimewithFormat();
-
-    var notify = {'event':'','time':'','type':'','jobActivity':'','position':''};
-    notify = {items: [
-      // {event:-1,time:0}
-    ]};
-
-    if(localStorage.getItem('notification') === null ){
-      localStorage.setItem('notification',JSON.stringify(notify));
-    }
-
-    // getdata = JSON.parse(localStorage.getItem('notification'));
-    //
-    // getdata.items.push(
-    //   {
-    //     event:'Submit new notification from new Notification Center',
-    //     time:getTime,
-    //     type:'warning',
-    //   }
-    // );
-    // localStorage.setItem('notification',JSON.stringify(getdata));
-
-    // console.log(JSON.parse(localStorage.getItem('notification')));
-
-    DB.sendNotification();
-  }
-  // DB.notification();
-
-
-
-
-
-
-
-
-
-
-  // Wait for device API libraries to load
+  // getdata = JSON.parse(localStorage.getItem('notification'));
   //
-  document.addEventListener("deviceready", getLocationFromGPS, false);
+  // getdata.items.push(
+  //   {
+  //     event:'Submit new notification from new Notification Center',
+  //     time:getTime,
+  //     type:'warning',
+  //   }
+  // );
+  // localStorage.setItem('notification',JSON.stringify(getdata));
 
-  // device APIs are available
-  //
+  // console.log(JSON.parse(localStorage.getItem('notification')));
 
-  function getLocationFromGPS() {
-    navigator.geolocation.getCurrentPosition(onSuccess, onError);
-    // var element = document.getElementById('geolocation');
-    // element.innerHTML = 'hello babe i have NO error';
-    // $('#geolocation').html('hello babe');
-  }
+  DB.sendNotification();
+}
+// DB.notification();
 
 
-  // onSuccess Geolocation
-  //
-  function onSuccess(position) {
-    var element = document.getElementById('geolocation');
-    element.innerHTML = 'hello babe i have NO error';
 
-    // '35.6998985,51.3419222'
-    var where = position.coords.latitude+','+position.coords.longitude;
-    localStorage.setItem('location',where);
 
-    // element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
-    // 'Longitude: '          + position.coords.longitude             + '<br />' +
-    // 'Altitude: '           + position.coords.altitude              + '<br />' +
-    // 'Accuracy: '           + position.coords.accuracy              + '<br />' +
-    // 'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
-    // 'Heading: '            + position.coords.heading               + '<br />' +
-    // 'Speed: '              + position.coords.speed                 + '<br />' +
-    // 'Timestamp: '          + position.timestamp                    + '<br />';
-  }
 
-  // onError Callback receives a PositionError object
-  //
-  function onError(error) {
-    // var element = document.getElementById('geolocation');
-    // element.innerHTML = 'code:     '+ error.code  +   'message: ' + error.message;
-  }
+
+
+
+
+
+// Wait for device API libraries to load
+//
+document.addEventListener("deviceready", getLocationFromGPS, false);
+
+// device APIs are available
+//
+
+function getLocationFromGPS() {
+  navigator.geolocation.getCurrentPosition(onSuccess, onError);
+  // var element = document.getElementById('geolocation');
+  // element.innerHTML = 'hello babe i have NO error';
+  // $('#geolocation').html('hello babe');
+}
+
+
+// onSuccess Geolocation
+//
+function onSuccess(position) {
+  var element = document.getElementById('geolocation');
+  element.innerHTML = 'hello babe i have NO error';
+
+  // '35.6998985,51.3419222'
+  var where = position.coords.latitude+','+position.coords.longitude;
+  localStorage.setItem('location',where);
+
+  // element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
+  // 'Longitude: '          + position.coords.longitude             + '<br />' +
+  // 'Altitude: '           + position.coords.altitude              + '<br />' +
+  // 'Accuracy: '           + position.coords.accuracy              + '<br />' +
+  // 'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
+  // 'Heading: '            + position.coords.heading               + '<br />' +
+  // 'Speed: '              + position.coords.speed                 + '<br />' +
+  // 'Timestamp: '          + position.timestamp                    + '<br />';
+}
+
+// onError Callback receives a PositionError object
+//
+function onError(error) {
+  // var element = document.getElementById('geolocation');
+  // element.innerHTML = 'code:     '+ error.code  +   'message: ' + error.message;
+}

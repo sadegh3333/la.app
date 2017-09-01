@@ -477,3 +477,81 @@ DB.list_schedule = function(){
     // DB.check_sync_with_server();
 
   }
+
+
+
+
+
+
+
+
+  DB.countdown = function(timelimit,schedule_running){
+
+    // set Time limit
+    var end_time = (Date.now() + (timelimit * 60 * 1000));
+    localStorage.setItem('end_time',end_time);
+    localStorage.setItem('countdown_ON','ON');
+
+
+    DB.countdown_timer();
+
+  }
+
+  /**
+  *   Count down Timer ( New Generation )
+  *   we need a countdown for when time is period
+  *   inserted to timer_out and send to server manager
+  *
+  *   @since 1.5.77
+  *
+  */
+  DB.countdown_timer = function(){
+
+    // Check elapsed time if done close interval
+    if(localStorage.getItem('end_time') <= Date.now() && localStorage.getItem('countdown_ON') == 'OFF' ){
+      localStorage.setItem('countdown_ON','OFF');
+      clearInterval(timeinterval_countdown);
+    }else {
+      var timeinterval_countdown = setInterval(function(){
+        var start_time = Date.now();
+        var elapsed = localStorage.getItem('end_time') - start_time;
+        localStorage.setItem('countdown_ON','ON');
+        // console.log(elapsed);
+
+        // Check elapsed time if done close interval
+        if(localStorage.getItem('end_time') === null){
+          // console.log('Timer is Running');
+        }else{
+          // console.log('No Timer Running');
+          if(localStorage.getItem('end_time') <= Date.now() ){
+
+            // Set A Notification for time is OVER
+            // DB.notification();
+            // Added a notify
+            var getTime = DB.getTimewithFormat();
+            getdata = JSON.parse(localStorage.getItem('notification'));
+            var get_position = localStorage.getItem('location');
+
+            getdata.items.push(
+              {
+                event:localStorage.getItem('schedule_running'),
+                time:getTime,
+                type:'timeover',
+                jobActivity: localStorage.getItem('schedule_running'),
+                position: get_position,
+              }
+            );
+            localStorage.setItem('notification',JSON.stringify(getdata));
+
+            // sync with server if server is available
+            // DB.check_sync_with_server();
+
+
+            localStorage.setItem('countdown_ON','OFF');
+            clearInterval(timeinterval_countdown);
+          }
+        }},50000);
+      }
+    }
+
+    DB.countdown_timer();
