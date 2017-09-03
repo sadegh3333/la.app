@@ -23,7 +23,7 @@ var LDPA = {};
 LDPA.core = function(){
 
   // Set Version
-  LDPA.version = '3.3.19';
+  LDPA.version = '3.3.49';
   // Set Channel Release
   LDPA.ChannelVersion = 'Pilot';
 
@@ -54,7 +54,11 @@ LDPA.core = function(){
   }
 
   // Created Global Variable for interval_timer
-  var interval_timer;
+  var check_for_check;
+
+  check_for_check = setInterval(function(){
+    console.log('this is CAP');
+  }, 1000);
 
 
   return 'This is core of ldpa App.';

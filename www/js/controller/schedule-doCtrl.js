@@ -21,7 +21,7 @@ ldpaApp.controller('scheduleDoCtrl',function($scope){
 
 
     // console.log(get_data_jsdo_done);
-    var which_structure = 1;
+    var which_structure = 0;
     for(d = 0; d < get_data_jsdo_done_count;d++){
       if(getid ==  get_data_jsdo_done.items[d].jobActivity){
 

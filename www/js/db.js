@@ -379,6 +379,17 @@ DB.btndone = function(x){
 
 
 
+    var getTime = DB.getTimewithFormat();
+
+    var notify = {'event':'','time':'','type':'','jobActivity':'','position':''};
+    notify = {items: [
+      // {event:-1,time:0}
+    ]};
+
+    if(localStorage.getItem('notification') === null ){
+      localStorage.setItem('notification',JSON.stringify(notify));
+    }
+
     // DB.notification();
     // Added a notify
     var getTime = DB.getTimewithFormat();
@@ -418,7 +429,7 @@ DB.btndone = function(x){
 
       console.log('time limit is not zero');
       if(localStorage.getItem('checkTimer') == 0 ){
-
+        console.log('is on the if');
         var timer_data = {
           'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
           'schedule_running':x,
@@ -460,6 +471,18 @@ DB.btndone = function(x){
 
           }
           else{
+            console.log('is on the else second');
+            var timer_data = {
+              'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
+              'schedule_running':x,
+              'rowno': $('#task_'+x+'').attr('RowNo'),
+              'time_submited': end_time,
+            };
+
+            localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+
+            localStorage.setItem('timeover_running','ON');
+            localStorage.setItem('checkTimer',JSON.stringify(timer_data));
             console.log('there is nothing same rowno');
           }
         }
@@ -471,6 +494,7 @@ DB.btndone = function(x){
 
     // sync with server if server is available
 
+    // DB.show_do_list();
   } else { return; } // end question
 }
 
@@ -652,8 +676,8 @@ DB.sync_with_server = function(){
 
 setInterval(function(){
   // $('#sync_with_server').click(function(){
-    // console.log('yeah clicked');
-    DB.sync_with_server();
+  // console.log('yeah clicked');
+  DB.sync_with_server();
   // });
 },7000);
 
