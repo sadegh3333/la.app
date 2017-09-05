@@ -30,6 +30,10 @@ ldpaApp.controller('scheduleDoCtrl',function($scope){
       }
     }
 
+    console.log($('#task_'+id+'').find('span:nth-child(2)').find('.done_status').html());
+
+
+
     if(which_structure == 0){
 
       console.log(getid);
@@ -85,6 +89,17 @@ ldpaApp.controller('scheduleDoCtrl',function($scope){
 
 
 
+    var temp_date = $('#task_'+id+'').find('span:nth-child(2)').find('.done_status').html();
+    // temp_date.trim();
+    console.log(temp_date);
+    var temp_date_split = temp_date.split(' ');
+    console.log(temp_date_split);
+    temp_date_split.splice(2);
+    console.log(temp_date_split);
+    console.log(temp_date_split.join('T'));
+    $('.inputdatetime').val(temp_date_split.join('T'));
+
+    // $('.inputdatetime').val($('#task_'+id+'').find('span:nth-child(2)').find('.done_status').html());
 
 
 
@@ -167,8 +182,7 @@ ldpaApp.controller('scheduleDoCtrl',function($scope){
             chtime_count = chtime.length;
             var correcttimeformat;
             correcttimeformat = chtime.join(' ');
-            correcttimeformat = correcttimeformat+':00';
-
+            // correcttimeformat = correcttimeformat+':00';
             timeis = correcttimeformat;
 
             getalldata.items[e].datetime = correcttimeformat;
@@ -192,7 +206,7 @@ ldpaApp.controller('scheduleDoCtrl',function($scope){
         chtime_count = chtime.length;
         var correcttimeformat;
         correcttimeformat = chtime.join(' ');
-        correcttimeformat = correcttimeformat+':00';
+        // correcttimeformat = correcttimeformat+':00';
 
         timeis = correcttimeformat;
       }
@@ -229,7 +243,7 @@ ldpaApp.controller('scheduleDoCtrl',function($scope){
 
     }
 
-
+    DB.sync_with_server();
 
 
     $('lightbox-edit').fadeOut('100');

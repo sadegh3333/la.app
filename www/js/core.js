@@ -23,7 +23,7 @@ var LDPA = {};
 LDPA.core = function(){
 
   // Set Version
-  LDPA.version = '3.3.49';
+  LDPA.version = '3.3.71';
   // Set Channel Release
   LDPA.ChannelVersion = 'Pilot';
 

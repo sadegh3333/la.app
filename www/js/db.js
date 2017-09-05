@@ -407,6 +407,9 @@ DB.btndone = function(x){
     );
     localStorage.setItem('notification',JSON.stringify(getdata));
 
+    // DB.sendNotification();
+    DB.sync_with_server();
+
     var end_time = (Date.now() + (Timelimit * 60 * 1000));
 
 
