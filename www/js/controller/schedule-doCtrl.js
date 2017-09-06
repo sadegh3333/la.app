@@ -101,7 +101,9 @@ ldpaApp.controller('scheduleDoCtrl',function($scope){
 
     // $('.inputdatetime').val($('#task_'+id+'').find('span:nth-child(2)').find('.done_status').html());
 
+    var additional_now = $('#task_'+id+'').find('.additional').html();
 
+    $('.inputAdditionalInput').val(additional_now);
 
     // sync with server if server is available
     // DB.check_sync_with_server();
