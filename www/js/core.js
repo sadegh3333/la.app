@@ -53,11 +53,54 @@ LDPA.core = function(){
     localStorage.setItem('checkTimer', 0);
   }
 
+  // Check For CheckTImer is available
+  if (localStorage.getItem('multiCheker') === null || localStorage.getItem('multiCheker') == '') {
+    var multiCheker = [{'id':'','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''}];
+    multiCheker_item = [
+      // {'id':'120','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''},
+      // {'id':'121','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''},
+      // {'id':'11','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''}
+      // {event:-1,time:0}
+    ];
+    // multiCheker.push(multiCheker_item);
+    localStorage.setItem('multiCheker', JSON.stringify(multiCheker_item));
+    // console.log(JSON.parse(localStorage.getItem('multiCheker')));
+    // console.log(JSON.parse(localStorage.getItem('multiCheker')).length);
+  }
+  // var leng = JSON.parse(localStorage.getItem('multiCheker')).length;
+
+  // // Begin Multi Cheker
+  // var multiCheker_new_item = {
+  //   'id': 'x' ,
+  //   'rowno': "$('#task_'+x+'').attr('rowno')" ,
+  //   'nextActivity': "$('#task_'+x+'').attr('timelimitstoppedbysteps')" ,
+  //   'timeLimit': "$('#task_'+x+'').attr('timelimit')" ,
+  //   'timeBegin': "end_time",
+  // };
+  //
+  // var temp_mc = JSON.parse(localStorage.getItem('multiCheker'));
+  // console.log(temp_mc);
+  // temp_mc.push(multiCheker_new_item);
+  // localStorage.setItem('multiCheker',JSON.stringify(temp_mc));
+
+
+  // if(leng > 0){
+  //   $.each(JSON.parse(localStorage.getItem('multiCheker')),function(key,val){
+  //     console.log(val.id);
+  //   });
+  // }
+
+  // var hero = JSON.parse(localStorage.getItem('multiCheker')).splice(1,0);
+  // console.log(hero);
+  // localStorage.setItem('multiCheker' , hero);
+  // console.log(JSON.parse(localStorage.getItem('multiCheker'))[0].id);
+
+
   // Created Global Variable for interval_timer
   var check_for_check;
 
   check_for_check = setInterval(function(){
-    console.log('this is CAP');
+    // console.log('this is CAP');
   }, 1000);
 
 

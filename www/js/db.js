@@ -407,7 +407,6 @@ DB.btndone = function(x){
     );
     localStorage.setItem('notification',JSON.stringify(getdata));
 
-    // DB.sendNotification();
     DB.sync_with_server();
 
     var end_time = (Date.now() + (Timelimit * 60 * 1000));
@@ -418,82 +417,135 @@ DB.btndone = function(x){
 
     console.log('1');
 
-    if(the_last_stand == $('#task_'+x+'').attr('RowNo') ){
-      localStorage.setItem('checkTimer',0);
-      localStorage.setItem('timeover_running','OFF');
-    }
-    if($('#task_'+x+'').attr('RowNo') == 1  ) {
-      localStorage.setItem('checkTimer',0);
+    // if(the_last_stand == $('#task_'+x+'').attr('RowNo') ){
+    //   localStorage.setItem('checkTimer',0);
+    //   localStorage.setItem('timeover_running','OFF');
+    // }
+    // if($('#task_'+x+'').attr('RowNo') == 1  ) {
+    //   localStorage.setItem('checkTimer',0);
+    // }
+    if($('#task_'+x+'').attr('RowNo') == 1 || $('#task_'+x+'').attr('RowNo') == the_last_stand ){
+      multiCheker_item = [];
+      localStorage.setItem('multiCheker',JSON.stringify(multiCheker_item));
     }
 
     // Timer is Coming...
-    if(Timelimit != 0){
-      var end_time = (Date.now() + (Timelimit * 60 * 1000));
-
-      console.log('time limit is not zero');
-      if(localStorage.getItem('checkTimer') == 0 ){
-        console.log('is on the if');
-        var timer_data = {
-          'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
-          'schedule_running':x,
-          'rowno': $('#task_'+x+'').attr('RowNo'),
-          'time_submited': end_time,
-        };
-
-        localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
-
-        localStorage.setItem('timeover_running','ON');
-        localStorage.setItem('checkTimer',JSON.stringify(timer_data));
+    if(Timelimit != 0 ){
 
 
-      }else {
+      // Begin Multi Cheker
+      var multiCheker_new_item = {
+        'id': x ,
+        'rowno': $('#task_'+x+'').attr('rowno') ,
+        'nextActivity': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(',') ,
+        'timeLimit': $('#task_'+x+'').attr('timelimit') ,
+        'end_time': end_time,
+        'timeBegin': Date.now(),
+        'notify_stat': 'notyet',
+      };
 
-        var which_next = JSON.parse(localStorage.getItem('checkTimer')).timelimitstoppedbysteps;
-        for (var i = 0; i < which_next.length; i++) {
-          console.log(which_next[i]);
-          if($('#task_'+x+'').attr('rowno') == which_next[i]){
-
-            // clearInterval(interval_timer);
-            localStorage.setItem('timeover_running','OFF');
-            localStorage.setItem('checkTimer',0);
+      var temp_mc = JSON.parse(localStorage.getItem('multiCheker'));
+      temp_mc.push(multiCheker_new_item);
+      localStorage.setItem('multiCheker',JSON.stringify(temp_mc));
 
 
-            // localStorage.setItem('end_time',end_time);
-            var timer_data = {
-              'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
-              'schedule_running':x,
-              'rowno': $('#task_'+x+'').attr('RowNo'),
-              'time_submited': end_time,
-            };
+      var get_mc_add_item = JSON.parse(localStorage.getItem('multiCheker'));
 
-            localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
 
-            localStorage.setItem('checkTimer',JSON.stringify(timer_data));
-            console.log('timeover made');
-            localStorage.setItem('timeover_running','ON');
+
+      var new_array_to_add = get_mc_add_item;
+      $.each(get_mc_add_item,function(key,val){
+
+        $.each(val.nextActivity,function(keyn,valn){
+
+          if(valn == $('#task_'+x+'').attr('rowno')){
+
+            new_array_to_add[key].notify_stat = 'sent';
 
           }
-          else{
-            console.log('is on the else second');
-            var timer_data = {
-              'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
-              'schedule_running':x,
-              'rowno': $('#task_'+x+'').attr('RowNo'),
-              'time_submited': end_time,
-            };
+        });
 
-            localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+        localStorage.setItem('multiCheker' , JSON.stringify(new_array_to_add));
 
-            localStorage.setItem('timeover_running','ON');
-            localStorage.setItem('checkTimer',JSON.stringify(timer_data));
-            console.log('there is nothing same rowno');
-          }
-        }
-      }
+      });
+      console.log(JSON.parse(localStorage.getItem('multiCheker')));
+
+
+
+      // if($('#task_'+x+'').attr('RowNo') == the_last_stand){
+      //   multiCheker_item = [];
+      //   localStorage.setItem('multiCheker',JSON.stringify(multiCheker_item));
+      // }
+
+
+      // End Multi Cheker
+
+
+      // var end_time = (Date.now() + (Timelimit * 60 * 1000));
+      //
+      // // console.log('time limit is not zero');
+      // if(localStorage.getItem('checkTimer') == 0 ){
+      //   // console.log('is on the if');
+      //   var timer_data = {
+      //     'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
+      //     'schedule_running':x,
+      //     'rowno': $('#task_'+x+'').attr('RowNo'),
+      //     'time_submited': end_time,
+      //   };
+      //
+      //   localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+      //
+      //   localStorage.setItem('timeover_running','ON');
+      //   localStorage.setItem('checkTimer',JSON.stringify(timer_data));
+      //
+      //
+      // }else {
+      //
+      //   var which_next = JSON.parse(localStorage.getItem('checkTimer')).timelimitstoppedbysteps;
+      //   for (var i = 0; i < which_next.length; i++) {
+      //     // console.log(which_next[i]);
+      //     if($('#task_'+x+'').attr('rowno') == which_next[i]){
+      //
+      //       // clearInterval(interval_timer);
+      //       localStorage.setItem('timeover_running','OFF');
+      //       localStorage.setItem('checkTimer',0);
+      //
+      //
+      //       // localStorage.setItem('end_time',end_time);
+      //       var timer_data = {
+      //         'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
+      //         'schedule_running':x,
+      //         'rowno': $('#task_'+x+'').attr('RowNo'),
+      //         'time_submited': end_time,
+      //       };
+      //
+      //       localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+      //
+      //       localStorage.setItem('checkTimer',JSON.stringify(timer_data));
+      //       // console.log('timeover made');
+      //       localStorage.setItem('timeover_running','ON');
+      //
+      //     }
+      //     else{
+      //       // console.log('is on the else second');
+      //       var timer_data = {
+      //         'timelimitstoppedbysteps': $('#task_'+x+'').attr('timelimitstoppedbysteps').split(','),
+      //         'schedule_running':x,
+      //         'rowno': $('#task_'+x+'').attr('RowNo'),
+      //         'time_submited': end_time,
+      //       };
+      //
+      //       localStorage.setItem('RowNo',$('#task_'+x+'').attr('rowno'));
+      //
+      //       localStorage.setItem('timeover_running','ON');
+      //       localStorage.setItem('checkTimer',JSON.stringify(timer_data));
+      //       // console.log('there is nothing same rowno');
+      //     }
+      //   }
+      // }
       // DB.countdown(Timelimit,x);
     }
 
-    // console.log(JSON.parse(localStorage.getItem('checkTimer')));
 
     // sync with server if server is available
 
@@ -502,34 +554,82 @@ DB.btndone = function(x){
 }
 
 
+DB.multiChekerTimer = function(){
+
+  var get_mc = JSON.parse(localStorage.getItem('multiCheker'));
+
+  var leng = get_mc.length;
+  if(leng >= 1){
+    // console.log(leng);
+    var get_mc = JSON.parse(localStorage.getItem('multiCheker'));
+    // console.log(temp_mc);
+
+    $.each(get_mc,function(key,val){
+      if(val.end_time <= Date.now()){
+
+        // Set A Notification for time is OVER When time is over and notify_stat not equal sent
+        if(val.notify_stat != 'sent'){
+          // Added a notify
+          var getTime = DB.getTimewithFormat();
+          getdata = JSON.parse(localStorage.getItem('notification'));
+          var get_position = localStorage.getItem('location');
+
+          getdata.items.push(
+            {
+              event: val.id,
+              time:getTime,
+              type:'timeover',
+              jobActivity: val.id,
+              position: get_position,
+            }
+          );
+          localStorage.setItem('notification',JSON.stringify(getdata));
+
+          console.log('notify for time over is created');
+          // change value notify_stat to 'sent'
+          val.notify_stat = 'sent';
+        }
+
+      }
+    });
+    localStorage.setItem('multiCheker' , JSON.stringify(get_mc));
+  }
+
+}
+
+setInterval(function(){
+  DB.multiChekerTimer();
+},5000);
+
+
 
 DB.checkTimer = function(){
 
-  // console.log('No Timer Running');
-  if(JSON.parse(localStorage.getItem('checkTimer')).time_submited <= Date.now() ){
-
-    // Set A Notification for time is OVER
-    // Added a notify
-    var getTime = DB.getTimewithFormat();
-    getdata = JSON.parse(localStorage.getItem('notification'));
-    var get_position = localStorage.getItem('location');
-
-    getdata.items.push(
-      {
-        event: JSON.parse(localStorage.getItem('checkTimer')).schedule_running,
-        time:getTime,
-        type:'timeover',
-        jobActivity: JSON.parse(localStorage.getItem('checkTimer')).schedule_running,
-        position: get_position,
-      }
-    );
-    localStorage.setItem('notification',JSON.stringify(getdata));
-
-    console.log('notify for time over is created');
-    localStorage.setItem('timeover_running','OFF');
-  }else{
-    console.log('there is nothing notificaiotn created for time over');
-  }
+  // // console.log('No Timer Running');
+  // if(JSON.parse(localStorage.getItem('checkTimer')).time_submited <= Date.now() ){
+  //
+  //   // Set A Notification for time is OVER
+  //   // Added a notify
+  //   var getTime = DB.getTimewithFormat();
+  //   getdata = JSON.parse(localStorage.getItem('notification'));
+  //   var get_position = localStorage.getItem('location');
+  //
+  //   getdata.items.push(
+  //     {
+  //       event: JSON.parse(localStorage.getItem('checkTimer')).schedule_running,
+  //       time:getTime,
+  //       type:'timeover',
+  //       jobActivity: JSON.parse(localStorage.getItem('checkTimer')).schedule_running,
+  //       position: get_position,
+  //     }
+  //   );
+  //   localStorage.setItem('notification',JSON.stringify(getdata));
+  //
+  //   console.log('notify for time over is created');
+  //   localStorage.setItem('timeover_running','OFF');
+  // }else{
+  //   console.log('there is nothing notificaiotn created for time over');
+  // }
 
 
 }
