@@ -468,7 +468,25 @@ DB.btndone = function(x){
         localStorage.setItem('multiCheker' , JSON.stringify(new_array_to_add));
 
       });
+      // console.log(JSON.parse(localStorage.getItem('multiCheker')));
+
+
+      $.each($('#task_'+x+'').attr('timelimitstoppedbysteps').split(',') , function(key,val){
+
+        // console.log($('.ActivityID_'+val.trim()+'').html());
+        if($('.ActivityID_'+val.trim()+'').hasClass('job_done')){
+          console.log('yeha its done');
+          $.each(new_array_to_add,function(keyn,valn){
+            if(new_array_to_add[keyn].id == x){
+              new_array_to_add[keyn].notify_stat = 'sent';
+            }
+          })
+        }
+      });
+      localStorage.setItem('multiCheker' , JSON.stringify(new_array_to_add));
+      // console.log(new_array_to_add);
       console.log(JSON.parse(localStorage.getItem('multiCheker')));
+      
 
 
 

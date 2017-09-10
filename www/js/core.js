@@ -23,7 +23,7 @@ var LDPA = {};
 LDPA.core = function(){
 
   // Set Version
-  LDPA.version = '3.3.72';
+  LDPA.version = '3.4.31';
   // Set Channel Release
   LDPA.ChannelVersion = 'Pilot';
 
@@ -56,12 +56,7 @@ LDPA.core = function(){
   // Check For CheckTImer is available
   if (localStorage.getItem('multiCheker') === null || localStorage.getItem('multiCheker') == '') {
     var multiCheker = [{'id':'','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''}];
-    multiCheker_item = [
-      // {'id':'120','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''},
-      // {'id':'121','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''},
-      // {'id':'11','rowno':'','nextActivity':'','timeLimit':'','timeBegin':''}
-      // {event:-1,time:0}
-    ];
+    multiCheker_item = [];
     // multiCheker.push(multiCheker_item);
     localStorage.setItem('multiCheker', JSON.stringify(multiCheker_item));
     // console.log(JSON.parse(localStorage.getItem('multiCheker')));
