@@ -457,8 +457,7 @@ DB.btndone = function(x){
       $.each(get_mc_add_item,function(key,val){
 
         $.each(val.nextActivity,function(keyn,valn){
-
-          if(valn == $('#task_'+x+'').attr('rowno')){
+          if(valn.trim() == $('#task_'+x+'').attr('rowno')){
 
             new_array_to_add[key].notify_stat = 'sent';
 
@@ -486,7 +485,7 @@ DB.btndone = function(x){
       localStorage.setItem('multiCheker' , JSON.stringify(new_array_to_add));
       // console.log(new_array_to_add);
       console.log(JSON.parse(localStorage.getItem('multiCheker')));
-      
+
 
 
 
